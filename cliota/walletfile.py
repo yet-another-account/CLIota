@@ -19,7 +19,7 @@ class WalletEncryption:
 
         key = base64.urlsafe_b64encode(kdf.derive(bytes(password, 'utf-8')))
         f = Fernet(key)
-        return salt + f.encrypt(data)
+        return salt + base64.urlsafe_b64decode(f.encrypt(data))
 
     def decrypt(self, data, password):
         print(type(data))
@@ -31,7 +31,7 @@ class WalletEncryption:
         key = base64.urlsafe_b64encode(kdf.derive(bytes(password, 'utf-8')))
         f = Fernet(key)
 
-        return f.decrypt(token)
+        return f.decrypt(base64.urlsafe_b64encode(token))
 
     def _get_kdf(self, salt):
         return PBKDF2HMAC(
