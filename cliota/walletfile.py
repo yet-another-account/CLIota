@@ -44,7 +44,8 @@ class WalletEncryption:
 
 
 class WalletFile:
-    def __init__(self, wfile, password, encryptor=WalletEncryption()):
+    def __init__(self, wfile, password, encryptor=WalletEncryption(),
+                 seed=None):
         self.wfile = wfile
         self.password = password
         self.encryptor = encryptor
@@ -56,7 +57,7 @@ class WalletFile:
             self.seed = fobj['seed']
         else:
             self.addresses = []
-            self.seed = gen_seed()
+            self.seed = seed if seed else gen_seed()
 
     def save(self):
         objstr = json.dumps({
