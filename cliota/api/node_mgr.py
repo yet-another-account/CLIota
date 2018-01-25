@@ -25,13 +25,15 @@ class RefreshApisThread(threading.Thread):
 class ApiFactory:
     def __init__(self, nodes):
         self.nodes = nodes
-        self.apilocal = iota.Iota('http://0.0.0.0:0')
         self.apis = self.get_apis(num=4)
 
         self.stopevent = threading.Event()
         self.refreshthread = RefreshApisThread(self, self.stopevent, 15)
 
         self.refreshthread.start()
+
+    def get_apis(self):
+        return self.apis
 
     def check_apis(self):
         """ Check that none of our nodes have fallen out of order """
@@ -50,9 +52,12 @@ class ApiFactory:
 
         random.shuffle(self.nodes)
 
-        self.nodes = refresh + self.nodes
+        nodes = refresh + self.nodes
 
-        for url in self.nodes:
+        # check localhost first, always
+        nodes.insert('http://127.0.0.1:14265')
+
+        for url in nodes:
             if url in exclude:
                 continue
 
