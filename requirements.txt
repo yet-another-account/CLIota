@@ -1,0 +1,2 @@
+PyOTA==2.0.3
+timeout-decorator==0.4.0
