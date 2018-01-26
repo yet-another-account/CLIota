@@ -2,8 +2,10 @@ import iota
 from iota.crypto.addresses import AddressGenerator
 import multiprocessing
 import random
+import logging
 
-from cliota.walletfile import WalletFile
+
+logger = logging.getLogger(__name__)
 
 
 class Account:
@@ -71,20 +73,29 @@ class Account:
                 'txs': 0
             })
 
+        # save changes
+        self.walletdata.save()
+
     def refresh_addr(self, index):
+        addr = self.walletdata.addresses[index]['address']
         api = random.choice(self.apifactory.apis)
+
+        logger.debug("Refreshing address %s", addr)
 
         # TODO: Also keep tx info
         txs = api.find_transactions(addresses=[
-            self.walletdata.addresses[index]['address']
+            addr
         ])['hashes']
 
         bal = api.get_balances([
-            iota.Address(self.walletdata.addresses[index]['address'])
+            iota.Address(addr)
         ])['balances'][0]
 
-        self.walletdata.addresses[index]['txs'] = len(txs)
+        self.walletdata.addresses[index]['txs'] = [str(x) for x in txs]
         self.walletdata.addresses[index]['balance'] = bal
+
+        # save changes
+        self.walletdata.save()
 
     def refresh_addresses(self):
         self.refiter += 1

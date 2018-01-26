@@ -8,6 +8,7 @@ from cliota.walletfile import WalletFile
 class AccountTest(TestCase):
     def test_addr_gen(self):
         acc = Account(WalletFile('wf', 'pass', seed='A' * 81), object())
+        acc.walletdata.save = mock.MagicMock()
         acc.cache_new_addresses(4)
 
         # This method only generates new addresses,
@@ -50,6 +51,7 @@ class AccountTest(TestCase):
 
         acc = Account(WalletFile('wf', 'pass', seed='A' * 81),
                       mockapis)
+        acc.walletdata.save = mock.MagicMock()
         acc.cache_new_addresses(1)
 
         # refresh the value of the first address
@@ -59,7 +61,7 @@ class AccountTest(TestCase):
             {
                 'address': 'XUERGHWTYRTFUYKFKXURKHMFEVLOIFTTCNTXOGLDPCZ9CJLKHROOPGNAQYFJEPGK9OKUQROUECBAVNXRX',
                 'balance': 123,
-                'txs': 3
+                'txs': ['aaa', 'bbb', 'ccc']
             }
         ]
 
