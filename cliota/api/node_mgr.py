@@ -55,7 +55,7 @@ class ApiFactory:
         nodes = refresh + self.nodes
 
         # check localhost first, always
-        nodes.insert('http://127.0.0.1:14265')
+        nodes.insert(0, 'http://127.0.0.1:14265')
 
         for url in nodes:
             if url in exclude:
