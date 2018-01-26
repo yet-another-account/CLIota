@@ -23,7 +23,6 @@ class WalletEncryption:
         return salt + base64.urlsafe_b64decode(f.encrypt(data))
 
     def decrypt(self, data, password):
-        print(type(data))
         salt = data[:16]
         token = data[16:]
 
