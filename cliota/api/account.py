@@ -70,7 +70,7 @@ class Account:
             self.walletdata.addresses.append({
                 'address': address,
                 'balance': 0,
-                'txs': 0
+                'txs': []
             })
 
         # save changes
