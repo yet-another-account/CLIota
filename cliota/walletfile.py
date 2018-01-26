@@ -1,3 +1,4 @@
+import iota
 import json
 import base64
 import os
@@ -56,6 +57,7 @@ class WalletFile:
             self.addresses = fobj['addresses']
             self.seed = fobj['seed']
         else:
+            # {address, balance, txsin, txsout}
             self.addresses = []
             self.seed = seed if seed else gen_seed()
 
