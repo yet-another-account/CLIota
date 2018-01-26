@@ -94,7 +94,7 @@ class ApiFactory:
 
         return [a[0] for a in apis]
 
-    @timeout_decorator.timeout(0.3, use_signals=False)
+    @timeout_decorator.timeout(0.5, use_signals=False)
     def __node_info(self, api):
         try:
             return api.get_node_info()
