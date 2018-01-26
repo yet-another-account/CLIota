@@ -61,24 +61,30 @@ class Account:
             return str(addrgen.get_addresses(index)[0])
 
         addrs = parmap(generate_address,
-                      range(len(self.walletdata.addresses),
-                            len(self.walletdata.addresses) + count))
+                       range(len(self.walletdata.addresses),
+                             len(self.walletdata.addresses) + count))
 
         for address in addrs:
             self.walletdata.addresses.append({
                 'address': address,
                 'balance': 0,
-                'txsin': 0,
-                'txsout': 0
+                'txs': 0
             })
 
     def refresh_addr(self, index):
         api = random.choice(self.apifactory.apis)
+
+        # TODO: Also keep tx info
         txs = api.find_transactions(addresses=[
             self.walletdata.addresses[index]['address']
-        ])
+        ])['hashes']
 
-        print(txs)
+        bal = api.get_balances([
+            iota.Address(self.walletdata.addresses[index]['address'])
+        ])['balances'][0]
+
+        self.walletdata.addresses[index]['txs'] = len(txs)
+        self.walletdata.addresses[index]['balance'] = bal
 
     def refresh_addresses(self):
         self.refiter += 1
