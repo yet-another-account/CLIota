@@ -20,9 +20,6 @@ class Account:
         self.api = iota.Iota('http://0.0.0.0:0', seed=self.seed)
         self.addrgen = AddressGenerator(self.seed)
 
-        # Used to keep track of how often each cached address is refreshed
-        self.refiter = 0
-
     def balance(self):
         """ Get balance of Account """
         bal = 0
@@ -97,8 +94,23 @@ class Account:
         # save changes
         self.walletdata.save()
 
-    def refresh_addresses(self):
-        self.refiter += 1
+    def refresh_addresses(self, P_chk_used=0.1, P_chk_unused=0.8):
+        torefresh = []
+        for i in range(len(self.walletdata.addresses)):
+            if len(self.walletdata.addresses[i]['txs']) == 0:
+                if random.uniform(0, 1) < P_chk_unused:
+                    torefresh.append(i)
+            else:
+                if random.uniform(0, 1) < P_chk_used:
+                    torefresh.append(i)
+
+        def refresh_addr(index):
+            self.refresh_addr(index)
+        parmap(refresh_addr, torefresh, nprocs=10)
+
+    def unused_addrs(self):
+        return [addr['address'] for addr in self.walletdata.addresses
+                if not addr['txs']]
 
 
 # parallel processing stuff
