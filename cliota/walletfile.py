@@ -56,7 +56,7 @@ class WalletFile:
             self.addresses = fobj['addresses']
             self.seed = fobj['seed']
         else:
-            # {address, balance, txsin, txsout}
+            # {address, balance, txs}
             self.addresses = []
             self.seed = seed if seed else gen_seed()
 
