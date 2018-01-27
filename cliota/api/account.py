@@ -46,11 +46,17 @@ class Account:
 
     def receive(self):
         """ Get first unused receive address """
-        return ""
+        for a in self.walletdata.addresses:
+            if not a['txs']:
+                return a['address']
 
     def check_address(self, addr):
         """ Fetch address info """
-        """ Return: (balance, txcount) """
+        """ Return: (balance, txs) """
+
+        for a in self.walletdata.addresses:
+            if a['address'] == addr:
+                return (a['balance'], a['txs'])
 
     def cache_new_addresses(self, count):
         """ Generate new addresses and add them to walletfile """
