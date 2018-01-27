@@ -3,9 +3,24 @@ from iota.crypto.addresses import AddressGenerator
 import multiprocessing
 import random
 import logging
+import threading
 
 
 logger = logging.getLogger(__name__)
+
+
+class RefreshAddrsThread(threading.Thread):
+    def __init__(self, account, event, interval):
+        threading.Thread.__init__(self)
+        self.stopped = event
+        self.interval = interval
+        self.account = account
+        self.daemon = True
+
+    def run(self):
+        logger.debug('Address Refresh Thread started.')
+        while not self.stopped.wait(self.interval):
+            self.account.refresh_addresses()
 
 
 class Account:
@@ -19,6 +34,10 @@ class Account:
         self.seed = self.walletdata.seed
         self.api = iota.Iota('http://0.0.0.0:0', seed=self.seed)
         self.addrgen = AddressGenerator(self.seed)
+
+        self.stopevent = threading.Event()
+        self.refreshthread = RefreshAddrsThread(self, self.stopevent, 15)
+        self.refreshthread.start()
 
     def balance(self):
         """ Get balance of Account """
@@ -109,6 +128,8 @@ class Account:
             else:
                 if random.uniform(0, 1) < P_chk_used:
                     torefresh.append(i)
+
+        logger.debug('Refreshing %d addresses', len(torefresh))
 
         def refresh_addr(index):
             self.refresh_addr(index)
