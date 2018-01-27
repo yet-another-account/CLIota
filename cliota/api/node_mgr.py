@@ -55,7 +55,7 @@ class ApiFactory:
         nodes = refresh + self.nodes
 
         # check localhost first, always
-        nodes.insert('http://127.0.0.1:14265')
+        nodes.insert(0, 'http://127.0.0.1:14265')
 
         for url in nodes:
             if url in exclude:
@@ -94,7 +94,7 @@ class ApiFactory:
 
         return [a[0] for a in apis]
 
-    @timeout_decorator.timeout(0.3, use_signals=False)
+    @timeout_decorator.timeout(0.5, use_signals=False)
     def __node_info(self, api):
         try:
             return api.get_node_info()

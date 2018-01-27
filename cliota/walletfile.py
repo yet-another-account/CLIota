@@ -23,7 +23,6 @@ class WalletEncryption:
         return salt + base64.urlsafe_b64decode(f.encrypt(data))
 
     def decrypt(self, data, password):
-        print(type(data))
         salt = data[:16]
         token = data[16:]
 
@@ -52,12 +51,12 @@ class WalletFile:
         self.encryptor = encryptor
 
         if os.path.isfile(wfile):
-            data = self.encryptor.decrypt(open(wfile).read(), password)
+            data = self.encryptor.decrypt(open(wfile, 'rb').read(), password)
             fobj = json.loads(data)
             self.addresses = fobj['addresses']
             self.seed = fobj['seed']
         else:
-            # {address, balance, txsin, txsout}
+            # {address, balance, txs}
             self.addresses = []
             self.seed = seed if seed else gen_seed()
 
@@ -68,5 +67,5 @@ class WalletFile:
         })
 
         encrypted = self.encryptor.encrypt(objstr, self.password)
-        with open(self.wfile, 'w') as fh:
+        with open(self.wfile, 'wb') as fh:
             fh.write(encrypted)

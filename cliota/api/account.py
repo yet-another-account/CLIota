@@ -2,8 +2,25 @@ import iota
 from iota.crypto.addresses import AddressGenerator
 import multiprocessing
 import random
+import logging
+import threading
 
-from cliota.walletfile import WalletFile
+
+logger = logging.getLogger(__name__)
+
+
+class RefreshAddrsThread(threading.Thread):
+    def __init__(self, account, event, interval):
+        threading.Thread.__init__(self)
+        self.stopped = event
+        self.interval = interval
+        self.account = account
+        self.daemon = True
+
+    def run(self):
+        logger.debug('Address Refresh Thread started.')
+        while not self.stopped.wait(self.interval):
+            self.account.refresh_addresses()
 
 
 class Account:
@@ -18,8 +35,9 @@ class Account:
         self.api = iota.Iota('http://0.0.0.0:0', seed=self.seed)
         self.addrgen = AddressGenerator(self.seed)
 
-        # Used to keep track of how often each cached address is refreshed
-        self.refiter = 0
+        self.stopevent = threading.Event()
+        self.refreshthread = RefreshAddrsThread(self, self.stopevent, 15)
+        self.refreshthread.start()
 
     def balance(self):
         """ Get balance of Account """
@@ -47,11 +65,17 @@ class Account:
 
     def receive(self):
         """ Get first unused receive address """
-        return ""
+        for a in self.walletdata.addresses:
+            if not a['txs']:
+                return a['address']
 
     def check_address(self, addr):
         """ Fetch address info """
-        """ Return: (balance, txcount) """
+        """ Return: (balance, txs) """
+
+        for a in self.walletdata.addresses:
+            if a['address'] == addr:
+                return (a['balance'], a['txs'])
 
     def cache_new_addresses(self, count):
         """ Generate new addresses and add them to walletfile """
@@ -68,26 +92,52 @@ class Account:
             self.walletdata.addresses.append({
                 'address': address,
                 'balance': 0,
-                'txs': 0
+                'txs': []
             })
 
+        # save changes
+        self.walletdata.save()
+
     def refresh_addr(self, index):
+        addr = self.walletdata.addresses[index]['address']
         api = random.choice(self.apifactory.apis)
+
+        logger.debug("Refreshing address %s", addr)
 
         # TODO: Also keep tx info
         txs = api.find_transactions(addresses=[
-            self.walletdata.addresses[index]['address']
+            addr
         ])['hashes']
 
         bal = api.get_balances([
-            iota.Address(self.walletdata.addresses[index]['address'])
+            iota.Address(addr)
         ])['balances'][0]
 
-        self.walletdata.addresses[index]['txs'] = len(txs)
+        self.walletdata.addresses[index]['txs'] = [str(x) for x in txs]
         self.walletdata.addresses[index]['balance'] = bal
 
-    def refresh_addresses(self):
-        self.refiter += 1
+        # save changes
+        self.walletdata.save()
+
+    def refresh_addresses(self, P_chk_used=0.1, P_chk_unused=0.8):
+        torefresh = []
+        for i in range(len(self.walletdata.addresses)):
+            if len(self.walletdata.addresses[i]['txs']) == 0:
+                if random.uniform(0, 1) < P_chk_unused:
+                    torefresh.append(i)
+            else:
+                if random.uniform(0, 1) < P_chk_used:
+                    torefresh.append(i)
+
+        logger.debug('Refreshing %d addresses', len(torefresh))
+
+        def refresh_addr(index):
+            self.refresh_addr(index)
+        parmap(refresh_addr, torefresh, nprocs=10)
+
+    def unused_addrs(self):
+        return [addr['address'] for addr in self.walletdata.addresses
+                if not addr['txs']]
 
 
 # parallel processing stuff
