@@ -17,22 +17,22 @@ class AccountTest(TestCase):
             {
                 'address': 'XUERGHWTYRTFUYKFKXURKHMFEVLOIFTTCNTXOGLDPCZ9CJLKHROOPGNAQYFJEPGK9OKUQROUECBAVNXRX',
                 'balance': 0,
-                'txs': 0
+                'txs': []
             },
             {
                 'address': 'RJBYLCIOUKWJVCUKZQZCPIKNBUOGRGVXHRTTE9ZFSCGTFRKELMJBDDAKEYYCLHLJDNSHQ9RTIUIDLMUOB',
                 'balance': 0,
-                'txs': 0
+                'txs': []
             },
             {
                 'address': 'G9IBAWCWWYOSAVURTPX9JKBJLAFFBHWLOONFHTNENHJZGRLTDUDTMXTMBKYODOVHTAYKKIZBDGVAJJQJD',
                 'balance': 0,
-                'txs': 0
+                'txs': []
             },
             {
                 'address': 'LATEWUUZSHRMEVHYVGW9T9HQKRLDGHTTAEHSN9ERFCQOEBCTNTBTYZPPARUILAYCKFKERLJ9UTYPHIICY',
                 'balance': 0,
-                'txs': 0
+                'txs': []
             }
         ]
 
