@@ -22,6 +22,13 @@ class RefreshAddrsThread(threading.Thread):
         while not self.stopped.wait(self.interval):
             self.account.refresh_addresses()
 
+            THRESHOLD_GEN = 3
+            NEW_ADDRS = 5
+
+            # generate new addresses is number of fresh addresses is low
+            if len(self.unused_addrs()) <= THRESHOLD_GEN:
+                self.account.cache_new_addresses(NEW_ADDRS)
+
 
 class Account:
     """ Hooks for API """
