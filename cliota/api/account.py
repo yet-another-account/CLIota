@@ -107,16 +107,15 @@ class Account:
 
     def refresh_addr(self, index):
         addr = self.walletdata.addresses[index]['address']
-        api = random.choice(self.apifactory.apis)
 
         logger.debug("Refreshing address %s", addr)
 
         # TODO: Also keep tx info
-        txs = api.find_transactions(addresses=[
+        txs = self.apifactory.find_transactions(addresses=[
             addr
         ])['hashes']
 
-        bal = api.get_balances([
+        bal = self.apifactory.get_balances([
             iota.Address(addr)
         ])['balances'][0]
 
