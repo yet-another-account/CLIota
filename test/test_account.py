@@ -46,11 +46,8 @@ class AccountTest(TestCase):
             'balances': [123]
         })
 
-        mockapis = mock.MagicMock()
-        mockapis.apis = [mockapi]
-
         acc = Account(WalletFile('wf', 'pass', seed='A' * 81),
-                      mockapis)
+                      mockapi)
         acc.walletdata.save = mock.MagicMock()
         acc.cache_new_addresses(1)
 
