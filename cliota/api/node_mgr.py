@@ -32,9 +32,6 @@ class ApiFactory:
 
         self.refreshthread.start()
 
-    def get_apis(self):
-        return self.apis
-
     def check_apis(self):
         """ Check that none of our nodes have fallen out of order """
 
